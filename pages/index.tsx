@@ -2,7 +2,8 @@ import Image from 'next/image'
 import { Inter } from '@next/font/google'
 import styles from '@/styles/Home.module.css'
 import { GetServerSideProps } from 'next'
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
+import BiSearch from '@/components/SearchIcon';
 
 const inter = Inter({ subsets: ['latin'] })
 const months = ["Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -49,10 +50,16 @@ function Home() {
     }
   }, [location]);
 
-  const tempButtonToggle =  () => {
-    localStorage.setItem('tempType', tempType);
-    // console.log("change: ", localStorage.getItem('tempType'));
-    tempType === "c" ? setTempType("f") : setTempType("c");
+
+  const tempButtonToggle = () => {
+    if (tempType === "c") {
+      localStorage.setItem("tempType", 'f');
+      setTempType("f")
+    }
+    else {
+      localStorage.setItem("tempType", 'c');
+      setTempType("c");
+    }
   }
 
   if (isLoading) return <h3 style={{textAlign: "center", marginTop: "30vh"}}>Loading...</h3>;
@@ -77,6 +84,13 @@ function Home() {
                 setLocation(input);
                 setInput("");
               }
+            }}
+          />
+          <BiSearch
+            className={styles.searchIcon}
+            onClick={() => {
+              setLocation(input);
+              setInput("");
             }}
           />
         </div>
@@ -159,12 +173,12 @@ function Home() {
         <section className={styles.second_section}>
           <h3>Next {futureDays.length} days</h3>
           <div className={styles.forcast_card_parent}>
-            {futureDays?.map((day : any) => (
+            {futureDays?.map((day: any) => (
               <>
                 <div key={day.date} className={styles.forcast_card}>
                   <p>
                     {day.date.slice(8)}{" "}
-                    {months[parseInt(day.date.slice(5, 7))-1]}
+                    {months[parseInt(day.date.slice(5, 7)) - 1]}
                   </p>
                   <Image
                     src="mostly-sunny.svg"
