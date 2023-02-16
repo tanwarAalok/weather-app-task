@@ -65,7 +65,7 @@
     width: 49.9%; 
 }
 .content_left_div > img{
-    margin-right: 40px;
+    margin-right: 50px;
 }
 
 .content_left_div > div {
@@ -78,6 +78,7 @@
     margin-bottom: 10px;
 }
 .content_left_div > div > p{
+    margin-left: 20px;
     font-size: 24px;
     opacity: 0.9;
 }

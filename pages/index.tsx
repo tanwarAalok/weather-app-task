@@ -5,27 +5,38 @@ import { GetServerSideProps } from 'next'
 import { useEffect, useState } from 'react';
 import BiSearch from '@/components/SearchIcon';
 
-const inter = Inter({ subsets: ['latin'] })
 const months = ["Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+type WeatherDataType = {
+  [key: string]: any; // 👈️ variable key
+};
+
+const errorObject = {
+  error: {
+    message: "Something went wrong."
+  }
+};
 
 function Home() {
   const [location, setLocation] = useState("");
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<WeatherDataType>({});
   const [isLoading, setLoading] = useState(false);
   const [input, setInput] = useState("");
   const [tempType, setTempType] = useState("");
 
   const fetchApiData = async () => {
     setLoading(true);
-    const res = await fetch(
+    try {
+      const res = await fetch(
       `http://api.weatherapi.com/v1/forecast.json?key=${process.env.NEXT_PUBLIC_API_KEY}&q=${location}&days=10&aqi=no&alerts=no`
-    );
-    // const res = await fetch(
-    //   `http://api.weatherapi.com/v1/current.json?key=${process.env.NEXT_PUBLIC_API_KEY}&q=${location}&aqi=no`
-    // );
-    const data = await res.json();
-    setData(data);
-    setLoading(false);
+      );
+      const apiData = await res.json();
+      setData(apiData);
+      setLoading(false);
+    } catch (err) {
+      setData(errorObject);
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -63,10 +74,10 @@ function Home() {
   }
 
   if (isLoading) return <h3 style={{textAlign: "center", marginTop: "30vh"}}>Loading...</h3>;
-  if (!data) return <p>No data found</p>;
+  if(!data || data === undefined) return <p>Data not found !!</p>
+  if (data?.error) return <p>data?.error?.message</p>;
 
-  console.log("data: ", data);
-  const futureDays = data?.forecast?.forecastday.slice(1);
+  const futureDays = data?.forecast?.forecastday?.slice(1);
 
   return (
     <>
@@ -100,6 +111,7 @@ function Home() {
       {/******************** Main content ********************** */}
 
       <div className={styles.main}>
+
         <section className={styles.first_section}>
           <div className={styles.nameDiv}>
             <h1>{data?.location?.name}</h1>
@@ -109,6 +121,7 @@ function Home() {
           </div>
 
           <div className={styles.content}>
+            
             <div className={styles.content_left_div}>
               <Image
                 src={`http:${data?.current?.condition?.icon}`}
@@ -171,7 +184,7 @@ function Home() {
         {/******************** Section 2 ********************** */}
 
         <section className={styles.second_section}>
-          <h3>Next {futureDays.length} days</h3>
+          <h3>Next {futureDays?.length || 2} days</h3>
           <div className={styles.forcast_card_parent}>
             {futureDays?.map((day: any) => (
               <>
@@ -181,7 +194,7 @@ function Home() {
                     {months[parseInt(day.date.slice(5, 7)) - 1]}
                   </p>
                   <Image
-                    src="mostly-sunny.svg"
+                    src={`http:${day?.day?.condition?.icon}`}
                     width="50"
                     height="50"
                     alt="weather image"
@@ -197,21 +210,5 @@ function Home() {
   );
 }
 
-
-// export const getServerSideProps: GetServerSideProps = async () => {
-
-
-//   const fetchLocation =  navigator.geolocation.getCurrentPosition(function (position)  {
-//     return position.coords.latitude + "," + position.coords.longitude;
-//   });
-
-//   const res = await fetch(
-//     `http://api.weatherapi.com/v1/current.json?key=${process.env.API_KEY}&q=${fetchLocation}&aqi=no`
-//   );
-//   const data = await res.json();
-
-//   // Pass data to the page via props
-//   return { props: { data } };
-// };
 
 export default Home;
