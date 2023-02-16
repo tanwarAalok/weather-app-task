@@ -4,6 +4,7 @@ import styles from '@/styles/Home.module.css'
 import { GetServerSideProps } from 'next'
 import { useEffect, useState } from 'react';
 import BiSearch from '@/components/SearchIcon';
+import Navbar from '@/components/Navbar';
 
 const months = ["Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -21,14 +22,14 @@ function Home() {
   const [location, setLocation] = useState("");
   const [data, setData] = useState<WeatherDataType>({});
   const [isLoading, setLoading] = useState(false);
-  const [input, setInput] = useState("");
+  
   const [tempType, setTempType] = useState("");
 
   const fetchApiData = async () => {
     setLoading(true);
     try {
       const res = await fetch(
-      `http://api.weatherapi.com/v1/forecast.json?key=${process.env.NEXT_PUBLIC_API_KEY}&q=${location}&days=10&aqi=no&alerts=no`
+      `https://api.weatherapi.com/v1/forecast.json?key=${process.env.NEXT_PUBLIC_API_KEY}&q=${location}&days=10&aqi=no&alerts=no`
       );
       const apiData = await res.json();
       setData(apiData);
@@ -62,16 +63,7 @@ function Home() {
   }, [location]);
 
 
-  const tempButtonToggle = () => {
-    if (tempType === "c") {
-      localStorage.setItem("tempType", 'f');
-      setTempType("f")
-    }
-    else {
-      localStorage.setItem("tempType", 'c');
-      setTempType("c");
-    }
-  }
+  
 
   if (isLoading) return <h3 style={{textAlign: "center", marginTop: "30vh"}}>Loading...</h3>;
   if(!data || data === undefined) return <p>Data not found !!</p>
@@ -83,35 +75,15 @@ function Home() {
     <>
       {/* ****************** Navbar content ********************** */}
 
-      <div className={styles.navbar}>
-        <h2>Forcast</h2>
-        <div className={styles.searchDiv}>
-          <input
-            placeholder="Search city..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                setLocation(input);
-                setInput("");
-              }
-            }}
-          />
-          <BiSearch
-            className={styles.searchIcon}
-            onClick={() => {
-              setLocation(input);
-              setInput("");
-            }}
-          />
-        </div>
-        <button onClick={() => tempButtonToggle()}>{tempType} °</button>
-      </div>
+      <Navbar
+        setLocation={setLocation}
+        setTempType={setTempType}
+        tempType={tempType}
+      />
 
       {/******************** Main content ********************** */}
 
       <div className={styles.main}>
-
         <section className={styles.first_section}>
           <div className={styles.nameDiv}>
             <h1>{data?.location?.name}</h1>
@@ -121,10 +93,9 @@ function Home() {
           </div>
 
           <div className={styles.content}>
-            
             <div className={styles.content_left_div}>
               <Image
-                src={`http:${data?.current?.condition?.icon}`}
+                src={`https:${data?.current?.condition?.icon}`}
                 width="150"
                 height="150"
                 alt="weather image"
@@ -194,7 +165,7 @@ function Home() {
                     {months[parseInt(day.date.slice(5, 7)) - 1]}
                   </p>
                   <Image
-                    src={`http:${day?.day?.condition?.icon}`}
+                    src={`https:${day?.day?.condition?.icon}`}
                     width="50"
                     height="50"
                     alt="weather image"
